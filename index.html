@@ -109,10 +109,11 @@ footer b{display:block;color:var(--ink);font-family:'Cormorant Garamond',serif;f
 .lbinfo h3{font-size:1.5rem;display:inline}
 .lbinfo>div>span{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:600;margin-left:12px}
 .lbinfo .sizes{margin:0}
-.lbx,.lbn{position:absolute;background:var(--ink);color:#fff;border:0;cursor:pointer;line-height:1;font-size:1.6rem;width:42px;height:42px}
-.lbx{top:10px;right:10px}
-.lbn{top:calc(31vh - 21px)}
-.lbp{left:10px}.lbs{right:10px}
+.lbx,.lbn{position:fixed;z-index:3;background:var(--ink);color:#fff;border:0;cursor:pointer;line-height:1;font-size:1.6rem;width:48px;height:48px}
+.lbx:hover,.lbn:hover{background:#000}
+.lbx{top:calc(14px + env(safe-area-inset-top,0px));right:14px}
+.lbn{top:50%;margin-top:-24px}
+.lbp{left:14px}.lbs{right:14px}
 @media (max-width:780px){.band,.contact,.pol{grid-template-columns:1fr}.band{padding:40px 24px}.perks{grid-template-columns:1fr}.perks div+div{border-left:0;border-top:1px solid var(--bg)}nav{display:none}.bar{grid-template-columns:1fr auto}.link{display:inline-block;margin:18px 0 0}}
 @media (prefers-reduced-motion:reduce){#panel{transition:none}html{scroll-behavior:auto}.bunny .shut{animation:none}}
 </style>
@@ -211,12 +212,13 @@ footer b{display:block;color:var(--ink);font-family:'Cormorant Garamond',serif;f
 </aside>
 
 <div id="lb" role="dialog" aria-modal="true" aria-label="Vista ampliada">
-<div class="lbbox">
+
 <button class="lbx" id="lbx" aria-label="Cerrar">×</button>
 <button class="lbn lbp" id="lbp" aria-label="Anterior">‹</button>
 <button class="lbn lbs" id="lbs" aria-label="Siguiente">›</button>
+<div class="lbbox">
 <img id="lbimg" src="" alt="">
-<div class="lbinfo"><div><h3 id="lbn"></h3><span id="lbpr"></span><div class="msg" id="lbmsg"></div></div><div class="sizes" id="lbsz"></div><button class="btn" id="lbadd">Agregar al carrito</button></div>
+<div class="lbinfo"><div><h3 id="lbn"></h3><span id="lbpr"></span><small id="lbc" style="color:var(--muted);margin-left:10px"></small><div class="msg" id="lbmsg"></div></div><div class="sizes" id="lbsz"></div><button class="btn" id="lbadd">Agregar al carrito</button></div>
 </div></div>
 
 <script>
@@ -256,16 +258,19 @@ g.onkeydown=function(e){var v=e.target.dataset&&e.target.dataset.v;if(v!==undefi
 var lb=document.getElementById("lb"),lsz=document.getElementById("lbsz"),lm=document.getElementById("lbmsg");
 function vis(){return P.map(function(x,i){return i}).filter(function(i){return cur==="Todo"||P[i].c===cur})}
 function show(i){li=i;var x=P[i],im=document.getElementById("lbimg");im.src="img/"+encodeURI(x.img);im.alt=x.n;
-document.getElementById("lbn").textContent=x.n;document.getElementById("lbpr").textContent="S/ "+x.p;lsz.innerHTML=sizeBtns(i);lm.textContent="";lb.classList.add("open")}
+document.getElementById("lbn").textContent=x.n;document.getElementById("lbpr").textContent="S/ "+x.p;lsz.innerHTML=sizeBtns(i);lm.textContent="";document.getElementById("lbc").textContent=(vis().indexOf(i)+1)+" / "+vis().length;lb.classList.add("open");document.body.style.overflow="hidden"}
+function closeLb(){lb.classList.remove("open");document.body.style.overflow=""}
+var tx=null;lb.addEventListener("touchstart",function(e){tx=e.touches[0].clientX},{passive:true});
+lb.addEventListener("touchend",function(e){if(tx===null)return;var d=e.changedTouches[0].clientX-tx;tx=null;if(Math.abs(d)>50)step(d<0?1:-1)});
 function step(d){var v=vis(),k=v.indexOf(li);show(v[(k+d+v.length)%v.length])}
 lsz.onclick=function(e){if(e.target.dataset.s){sz[li]=e.target.dataset.s;lsz.innerHTML=sizeBtns(li);lm.textContent="";draw()}};
-document.getElementById("lbx").onclick=function(){lb.classList.remove("open")};
+document.getElementById("lbx").onclick=function(){closeLb()};
 document.getElementById("lbp").onclick=function(){step(-1)};
 document.getElementById("lbs").onclick=function(){step(1)};
-document.getElementById("lbadd").onclick=function(){if(add(li,lm)){lb.classList.remove("open");pn.classList.add("open")}};
-lb.onclick=function(e){if(e.target===lb)lb.classList.remove("open")};
+document.getElementById("lbadd").onclick=function(){if(add(li,lm)){closeLb();pn.classList.add("open")}};
+lb.onclick=function(e){if(e.target===lb)closeLb()};
 document.addEventListener("keydown",function(e){if(!lb.classList.contains("open"))return;
-if(e.key==="Escape")lb.classList.remove("open");if(e.key==="ArrowLeft")step(-1);if(e.key==="ArrowRight")step(1)});
+if(e.key==="Escape")closeLb();if(e.key==="ArrowLeft")step(-1);if(e.key==="ArrowRight")step(1)});
 function save(){try{localStorage.setItem("cb_cart",JSON.stringify(cart))}catch(e){}}
 function upd(){
 var q=0,t=0,txt="Hola, quiero pedir:\n",it=document.getElementById("items");it.innerHTML="";
