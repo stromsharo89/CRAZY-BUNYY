@@ -98,6 +98,7 @@ footer b{display:block;color:var(--ink);font-family:'Cormorant Garamond',serif;f
 #items{flex:1;overflow:auto;align-content:start;display:grid}
 .it{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding:12px 0;font-size:.95rem}
 .it button{background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;font:400 .9rem 'Jost',sans-serif}
+.qty{display:flex;align-items:center;gap:8px}.qty button{width:28px;height:28px;border:1px solid var(--plomo2);background:#fff;color:var(--ink);cursor:pointer;font-size:1rem;text-decoration:none}.qty span{min-width:58px;text-align:right}
 .total{display:flex;justify-content:space-between;font-family:'Cormorant Garamond',serif;font-size:1.5rem;padding:16px 0}
 .close{align-self:flex-end;background:none;border:0;color:var(--ink);font-size:1.8rem;cursor:pointer;line-height:1}
 #lb{position:fixed;inset:0;z-index:20;background:rgba(238,240,242,.94);display:none;align-items:center;justify-content:center;padding:calc(20px + env(safe-area-inset-top,0px)) 20px calc(20px + env(safe-area-inset-bottom,0px))}
@@ -204,6 +205,7 @@ footer b{display:block;color:var(--ink);font-family:'Cormorant Garamond',serif;f
 <button class="close" id="close" aria-label="Cerrar carrito">×</button>
 <h2>Tu carrito</h2>
 <div id="items"></div>
+<button id="clr" style="display:none;background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;font:400 .85rem Jost,sans-serif;text-align:left">Vaciar carrito</button>
 <div class="total"><span>Total</span><span id="total">S/ 0</span></div>
 <a class="btn" id="wa" href="#" target="_blank" rel="noopener" style="text-align:center">Pedir por WhatsApp</a>
 </aside>
@@ -242,8 +244,10 @@ g.innerHTML="";P.forEach(function(x,i){if(cur!=="Todo"&&x.c!==cur)return;
 var d=document.createElement("article");d.className="card";
 d.innerHTML='<div class="swatch" data-v="'+i+'" tabindex="0" role="button" aria-label="Ver '+x.n+' en grande"><img src="img/'+encodeURI(x.img)+'" alt="'+x.n+'" loading="lazy"><span class="tag">'+x.c+'</span></div><div class="info"><h3>'+x.n+'</h3><p>'+x.d+'</p><span class="price">S/ '+x.p+'</span><div class="sizes" role="group" aria-label="Talla">'+sizeBtns(i)+'</div><div class="msg" id="m'+i+'"></div><button class="add" data-i="'+i+'">Agregar al carrito</button></div>';
 g.appendChild(d)})}
-function add(i,m){if(!sz[i]){m.textContent="Elige una talla (S, M o L)";return false}
-cart.push({n:P[i].n,p:P[i].p,s:sz[i]});upd();return true}
+function add(i,m){if(!sz[i]){m.textContent="Elige una talla (S, M o L) para agregar";m.style.color="var(--ink)";m.style.fontWeight="500";return false}
+m.textContent="";var x=cart.filter(function(c){return c.n===P[i].n&&c.s===sz[i]})[0];
+if(x)x.q++;else cart.push({n:P[i].n,p:P[i].p,s:sz[i],q:1});
+upd();pn.classList.add("open");return true}
 g.onclick=function(e){var t=e.target;
 if(t.dataset.s){sz[t.dataset.p]=t.dataset.s;draw();return}
 if(t.dataset.i!==undefined){add(+t.dataset.i,document.getElementById("m"+t.dataset.i));return}
@@ -262,16 +266,22 @@ document.getElementById("lbadd").onclick=function(){if(add(li,lm)){lb.classList.
 lb.onclick=function(e){if(e.target===lb)lb.classList.remove("open")};
 document.addEventListener("keydown",function(e){if(!lb.classList.contains("open"))return;
 if(e.key==="Escape")lb.classList.remove("open");if(e.key==="ArrowLeft")step(-1);if(e.key==="ArrowRight")step(1)});
+function save(){try{localStorage.setItem("cb_cart",JSON.stringify(cart))}catch(e){}}
 function upd(){
-document.getElementById("n").textContent=cart.length;
-var it=document.getElementById("items");it.innerHTML="";
-if(!cart.length){it.innerHTML='<p style="color:var(--muted)">Tu carrito está vacío. Agrega un conjunto de la colección.</p>'}
-var t=0,txt="Hola, quiero pedir:\n";
-cart.forEach(function(x,i){t+=x.p;txt+="- "+x.n+" (talla "+x.s+") S/ "+x.p+"\n";
-var r=document.createElement("div");r.className="it";r.innerHTML="<span>"+x.n+" · "+x.s+" · S/ "+x.p+"</span>";
-var b=document.createElement("button");b.textContent="Quitar";b.onclick=function(){cart.splice(i,1);upd()};r.appendChild(b);it.appendChild(r)});
+var q=0,t=0,txt="Hola, quiero pedir:\n",it=document.getElementById("items");it.innerHTML="";
+if(!cart.length){it.innerHTML='<p style="color:var(--muted)">Tu carrito está vacío. Elige una talla y agrega un conjunto de la colección.</p>'}
+cart.forEach(function(x,i){q+=x.q;t+=x.p*x.q;txt+="- "+x.n+" (talla "+x.s+") x"+x.q+" = S/ "+(x.p*x.q)+"\n";
+var r=document.createElement("div");r.className="it";
+r.innerHTML='<div><div>'+x.n+'</div><small style="color:var(--muted)">Talla '+x.s+' · S/ '+x.p+'</small></div><div class="qty"><button data-k="'+i+'" data-d="-1" aria-label="Quitar uno">−</button><b>'+x.q+'</b><button data-k="'+i+'" data-d="1" aria-label="Agregar uno">+</button><span>S/ '+(x.p*x.q)+'</span></div>';
+it.appendChild(r)});
+document.getElementById("n").textContent=q;
 document.getElementById("total").textContent="S/ "+t;
-document.getElementById("wa").href=wa(txt+"Total: S/ "+t)}
+var w=document.getElementById("wa");w.href=cart.length?wa(txt+"Total: S/ "+t):"#";w.style.opacity=cart.length?1:.4;w.style.pointerEvents=cart.length?"auto":"none";
+document.getElementById("clr").style.display=cart.length?"block":"none";save()}
+document.getElementById("items").onclick=function(e){var k=e.target.dataset.k;if(k===undefined)return;
+cart[k].q+=+e.target.dataset.d;if(cart[k].q<1)cart.splice(k,1);upd()};
+document.getElementById("clr").onclick=function(){cart=[];upd()};
+try{cart=JSON.parse(localStorage.getItem("cb_cart")||"[]").filter(function(c){return c&&c.q>0})}catch(e){cart=[]}
 var pn=document.getElementById("panel");
 document.getElementById("open").onclick=function(){pn.classList.add("open")};
 document.getElementById("close").onclick=function(){pn.classList.remove("open")};
