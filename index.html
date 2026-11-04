@@ -60,13 +60,17 @@ section{padding:84px 0 0}
 .filters{display:flex;gap:8px;justify-content:center;margin-bottom:36px}
 .filters button{background:var(--plomo);border:1px solid var(--plomo);color:var(--muted);padding:7px 22px;font:400 .95rem 'Jost',sans-serif;cursor:pointer}
 .filters button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:28px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,320px));gap:28px;justify-content:center;justify-items:center}
+.grid .card{width:100%}
 .card{background:var(--bg);border:1px solid var(--line);display:flex;flex-direction:column}
 .swatch{position:relative;aspect-ratio:1/1;background:#fff;overflow:hidden;cursor:zoom-in}
-.swatch img,.lbbox img{mix-blend-mode:multiply;filter:brightness(1.1) contrast(1.12)}
-.swatch img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+/* Se quitó el filter que oscurecía la imagen; se mantiene multiply para fundir el fondo blanco */
+.swatch img,.lbbox img{mix-blend-mode:multiply}
+/* Imagen centrada y completa dentro de la tarjeta */
+.swatch img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center center}
 .tag{position:absolute;left:12px;top:12px;background:var(--plomo);color:var(--ink);padding:2px 12px;font-size:.78rem}
-.info{padding:16px 18px 20px;text-align:center}
+.info{padding:16px 18px 20px;text-align:center;flex:1;display:flex;flex-direction:column}
+.info .add{margin-top:auto}
 .info h3{font-size:1.45rem}
 .info p{color:var(--muted);font-size:.9rem}
 .price{display:block;margin:6px 0 10px;font-family:'Cormorant Garamond',serif;font-size:1.45rem;font-weight:600}
@@ -112,7 +116,7 @@ footer b{display:block;color:var(--ink);font-family:'Cormorant Garamond',serif;f
 #lb{position:fixed;inset:0;z-index:20;background:rgba(238,240,242,.94);display:none;align-items:center;justify-content:center;padding:calc(20px + env(safe-area-inset-top,0px)) 20px calc(20px + env(safe-area-inset-bottom,0px))}
 #lb.open{display:flex}
 .lbbox{position:relative;background:#fff;border:1px solid var(--line);max-width:min(900px,100%);max-height:100%;display:flex;flex-direction:column;overflow:auto}
-.lbbox img{display:block;background:#fff;width:100%;max-height:62vh;object-fit:contain}
+.lbbox img{display:block;background:#fff;width:100%;max-height:62vh;object-fit:contain;object-position:center center}
 .lbinfo{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 20px;flex-wrap:wrap}
 .lbinfo h3{font-size:1.5rem;display:inline}
 .lbinfo>div>span{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:600;margin-left:12px}
