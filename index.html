@@ -14,6 +14,14 @@ GUÍA PARA CAMBIAR TODAS LAS IMÁGENES:
 <meta name="color-scheme" content="light">
 <title>Crazy Bunny — Moda streetwear que define tu actitud</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Precarga: las imágenes empiezan a descargarse apenas abre la página -->
+<link rel="preload" as="image" href="img/marca.png" fetchpriority="high">
+<link rel="preload" as="image" href="img/logo%202.png" fetchpriority="high">
+<link rel="preload" as="image" href="img/conejo-cerrado.png">
+<link rel="preload" as="image" href="img/gris%203.jpg">
+<link rel="preload" as="image" href="img/gris.jpg">
+<link rel="preload" as="image" href="img/negro%201.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 /* Solo blanco y plomo claro */
@@ -172,7 +180,7 @@ footer b{display:block;color:var(--ink);font-family:'Cormorant Garamond',serif;f
 <header><div class="wrap bar">
 <nav><a href="#catalogo">Colección</a><a href="#envios">Envíos y políticas</a><a href="#contacto">Contacto</a></nav>
 <!-- IMAGEN EDITABLE 1: LOGO DEL ENCABEZADO. Cambia img/marca.png por la ruta de tu logo. -->
-<a class="logo" href="#" aria-label="Crazy Bunny, inicio"><img src="img/marca.png" alt="Logo Crazy Bunny" draggable="false"></a>
+<a class="logo" href="#" aria-label="Crazy Bunny, inicio"><img src="img/marca.png" alt="Logo Crazy Bunny" draggable="false" fetchpriority="high" decoding="async"></a>
 <div class="right"><button class="cartbtn" id="open" aria-label="Abrir carrito">Carrito (<span id="n">0</span>)</button></div>
 </div></header>
 
@@ -182,7 +190,7 @@ footer b{display:block;color:var(--ink);font-family:'Cormorant Garamond',serif;f
 <div class="stage">
 <div class="word" aria-hidden="true">CRAZY BUNNY</div>
 <!-- IMAGEN EDITABLE 2: CONEJO/IMAGEN PRINCIPAL. Cambia img/logo%202.png por la ruta de tu imagen. -->
-<div class="bunny" role="img" aria-label="Logo del conejo Crazy Bunny"><img src="img/logo%202.png" alt="Conejo Crazy Bunny" draggable="false"><img class="shut" src="img/conejo-cerrado.png" alt="" draggable="false"></div>
+<div class="bunny" role="img" aria-label="Logo del conejo Crazy Bunny"><img src="img/logo%202.png" alt="Conejo Crazy Bunny" draggable="false" fetchpriority="high" decoding="async"><img class="shut" src="img/conejo-cerrado.png" alt="" draggable="false" decoding="async"></div>
 </div>
 <h1 class="slogan">MODA STREETWEAR QUE DEFINE TU ACTITUD</h1>
 <p>Conjuntos hoodie oversize en tonos grises y negro. Tallas S, M y L.</p>
@@ -297,7 +305,7 @@ function draw(){
 f.innerHTML="";cats.forEach(function(c){var b=document.createElement("button");b.textContent=c;b.setAttribute("aria-pressed",c===cur);b.onclick=function(){cur=c;draw()};f.appendChild(b)});
 g.innerHTML="";P.forEach(function(x,i){if(cur!=="Todo"&&x.c!==cur)return;
 var d=document.createElement("article");d.className="card";
-d.innerHTML='<div class="swatch" data-v="'+i+'" tabindex="0" role="button" aria-label="Ver '+x.n+' en grande"><img src="img/'+encodeURI(x.img)+'" alt="'+x.n+'" loading="lazy"><span class="tag">'+x.c+'</span></div><div class="info"><h3>'+x.n+'</h3><p>'+x.d+'</p><span class="price">S/ '+x.p+'</span><div class="sizes" role="group" aria-label="Talla">'+sizeBtns(i)+'</div><div class="msg" id="m'+i+'"></div><button class="add" data-i="'+i+'">Agregar al carrito</button></div>';
+d.innerHTML='<div class="swatch" data-v="'+i+'" tabindex="0" role="button" aria-label="Ver '+x.n+' en grande"><img src="img/'+encodeURI(x.img)+'" alt="'+x.n+'" decoding="async"><span class="tag">'+x.c+'</span></div><div class="info"><h3>'+x.n+'</h3><p>'+x.d+'</p><span class="price">S/ '+x.p+'</span><div class="sizes" role="group" aria-label="Talla">'+sizeBtns(i)+'</div><div class="msg" id="m'+i+'"></div><button class="add" data-i="'+i+'">Agregar al carrito</button></div>';
 g.appendChild(d)})}
 function add(i,m){if(!sz[i]){m.textContent="Elige una talla (S, M o L) para agregar";m.style.color="var(--ink)";m.style.fontWeight="500";return false}
 m.textContent="";var x=cart.filter(function(c){return c.n===P[i].n&&c.s===sz[i]})[0];
@@ -352,6 +360,9 @@ document.getElementById("wanum").textContent="+"+WA.replace(/^(\d{2})(\d{3})(\d{
 document.getElementById("cn").oninput=upd;
 document.getElementById("cl").oninput=upd;
 document.getElementById("wa").onclick=function(e){if(!(cart.length&&nameOk())){e.preventDefault();document.getElementById("cn").focus()}};
+/* Precarga: deja todas las imágenes en caché (también las de la vista ampliada) */
+["marca.png","logo 2.png","conejo-cerrado.png"].concat(P.map(function(x){return x.img})).forEach(function(n){
+  var im=new Image();im.decoding="async";im.src="img/"+encodeURI(n)});
 /* Conejo y logo: bloquear menú contextual y arrastre */
 document.querySelectorAll(".bunny,.logo").forEach(function(el){
   el.addEventListener("contextmenu",function(e){e.preventDefault()});
